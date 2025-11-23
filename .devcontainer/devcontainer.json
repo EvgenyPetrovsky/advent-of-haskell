@@ -1,5 +1,5 @@
 {
-  "name": "Podman enabled Haskell Dev Environment",
+  "name": "haskell",
   "image": "haskell-dev",
   "runArgs": [
     "--volume=${localWorkspaceFolder}:/workspace:cached",
