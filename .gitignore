@@ -1,0 +1,14 @@
+
+# all build and cache data
+.stack-work/
+*~
+
+# input and output files
+input/
+output/
+
+# profiling
+*.prof
+
+# other
+.DS_Store

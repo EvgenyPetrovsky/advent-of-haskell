@@ -1,0 +1,13 @@
+{
+  "name": "container-haskell-container",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+        "settings": {},
+        "extensions": []
+    }
+  },
+  "mounts": [],
+  "postCreateCommand": "echo Ready"
+}
