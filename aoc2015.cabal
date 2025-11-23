@@ -40,6 +40,7 @@ library
       Y19D03
       Y19D04
       Y19D05
+      Y19D06
   other-modules:
       Paths_aoc2015
   autogen-modules:
