@@ -4,9 +4,9 @@ module Y19D03
     , solve2
     ) where
 
-import AOCutil ((|>))
+--import AOCutil ((|>))
 import Data.Set (Set, union, intersection)
-import qualified Data.Set as S (fromList, empty, toList, map)
+import qualified Data.Set as S (fromList, empty, toList)
 type Problem = [Path]
 type Answer = Int
 

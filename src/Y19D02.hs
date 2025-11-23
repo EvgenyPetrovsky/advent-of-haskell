@@ -3,37 +3,11 @@ module Y19D02
     , solve1
     , solve2
     ) where
-import GHC.Clock (getMonotonicTime)
 
 type Problem = [Int]
 type Answer = Int
 
 type Program = [Int]
-type Memory = [Int]
-
-type Pointer = Int
-
-data Instruction =
-    Opcode99
-  | Opcode1 Pointer Pointer Pointer
-  | Opcode2 Pointer Pointer Pointer
-
-readInstruction :: Memory -> Pointer -> Instruction
-readInstruction = undefined
-
-readParameter :: Memory -> Pointer -> Int
-readParameter = undefined
-
-writeParameter :: Memory -> Pointer -> Int -> Memory
-writeParameter = undefined
-
-nextInstructionAddress :: Pointer -> Instruction -> Pointer
-nextInstructionAddress p instruction =
-    case instruction of
-        Opcode99   -> p + 1
-        Opcode1 {} -> p + 4
-        Opcode2 {} -> p + 4
-
 
 run :: Program -> Program
 run program =

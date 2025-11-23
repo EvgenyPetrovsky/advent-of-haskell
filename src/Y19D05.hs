@@ -23,7 +23,7 @@ data Value =
 getValue :: Memory -> Value -> Int
 getValue _ (Immediate x) = x
 getValue m (Position r) = m !! r
-getValue _ v = error $ "invalid value kind: " ++ show v
+--getValue _ v = error $ "invalid value kind: " ++ show v
 
 
 data Instruction =
