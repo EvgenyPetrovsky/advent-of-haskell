@@ -1,0 +1,8 @@
+{
+  "haskell.toolchain": {
+    "ghc": "recommended",
+    "cabal": "recommended",
+    "stack": "recommended",
+    "hls": "recommended"
+  }
+}
