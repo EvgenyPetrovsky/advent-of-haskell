@@ -1,13 +1,20 @@
 {
-  "name": "container-haskell-container",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "remoteUser": "vscode",
+  "name": "Podman enabled Haskell Dev Environment",
+  "image": "haskell-dev",
+  "runArgs": [
+    "--volume=${localWorkspaceFolder}:/workspace:cached",
+    "--workdir=/workspace"
+  ],
   "customizations": {
     "vscode": {
-        "settings": {},
-        "extensions": []
+        "settings": {
+          "terminal.integrated.shell.linux": "/bin/bash"
+        }
     }
   },
-  "mounts": [],
-  "postCreateCommand": "echo Ready"
+  "remoteUser": "root",
+  "workspaceFolder": "/workspace",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  }
 }
