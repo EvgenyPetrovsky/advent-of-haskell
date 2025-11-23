@@ -31,26 +31,26 @@ count orbits obj =
         Nothing -> 0
         Just center -> 1 + count orbits center
 
-pathToCOM :: Orbits -> Object -> [(Object, Int)]
-pathToCOM orbits = go (-1)
+pathToCOM :: Orbits -> Object -> [Object]
+pathToCOM orbits = go
     where
-        go :: Int -> Object -> [(Object, Int)]
-        go acc obj =
+        go :: Object -> [Object]
+        go obj =
             case M.lookup obj orbits of
-                Nothing -> [(obj, acc)]
-                Just center -> (obj, acc) : go (acc+1) center
+                Nothing -> [obj]
+                Just center -> obj : go center
 
 
 solve1 :: Problem -> Answer
 solve1 orbits =
     sum . map (count orbits) . M.keys $ orbits
-    --error $ show orbits
+
 
 solve2 :: Problem -> Answer
 solve2 orbits =
     let
-        path_you = M.fromList $ pathToCOM orbits "YOU"
-        path_san = M.fromList $ pathToCOM orbits "SAN"
+        path_you = M.fromList . flip zip [0..] . drop 1 $ pathToCOM orbits "YOU"
+        path_san = M.fromList . flip zip [0..] . drop 1 $ pathToCOM orbits "SAN"
         common = intersect (M.keys path_you) (M.keys path_san)
         orbital_transfers = map (\obj -> (path_you M.! obj) + (path_san M.! obj)) common
     in minimum orbital_transfers
