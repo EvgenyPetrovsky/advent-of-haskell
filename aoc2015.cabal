@@ -35,12 +35,14 @@ library
       Y15D23
       Y15D24
       Y15D25
+      Y19.IntCodeComputer
       Y19D01
       Y19D02
       Y19D03
       Y19D04
       Y19D05
       Y19D06
+      Y19D07
   other-modules:
       Paths_aoc2015
   autogen-modules:
