@@ -7,6 +7,7 @@ module Y19D07
 import qualified Y19.IntCodeComputer as ICC
 import Data.List (permutations)
 import AOCutil ((|>))
+import Y19.IntCodeComputer (statusHalt)
 
 type Problem = ICC.Program
 type Answer = Int
@@ -19,9 +20,10 @@ processThrough :: ICC.Computer -> [Int] -> Int -> Int
 processThrough computer phases input =
     foldl (
         \input_signal phase_setting -> [phase_setting, input_signal]
-            |> ICC.load_ins computer
-            |> ICC.run_comp
-            |> ICC.read_out) input phases 
+            |> ICC.upld_inp computer
+            |> (`ICC.run_until` statusHalt)
+            |> (fst . ICC.pull_out)
+        ) input phases 
 
 solve1 :: Problem -> Answer
 solve1 program = 

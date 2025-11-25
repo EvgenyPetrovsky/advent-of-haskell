@@ -43,7 +43,7 @@ data Instruction =
 
 class IntCodeComputer c where
     init      :: Program -> c
-    upld_ins  :: c -> [Int] -> c
+    upld_inp  :: c -> [Int] -> c
     push_in   :: c -> Int -> c
     pull_out  :: c -> (Int, c)
 
@@ -69,8 +69,8 @@ instance IntCodeComputer Computer where
     init program = Computer { pointer = 0, memory = program, input = [], output = [] }
 
 
-    upld_ins :: Computer -> [Int] -> Computer
-    upld_ins c ins = c {input = ins}
+    upld_inp :: Computer -> [Int] -> Computer
+    upld_inp c ins = c {input = ins}
 
     push_in :: Computer -> Int -> Computer
     push_in c v =
