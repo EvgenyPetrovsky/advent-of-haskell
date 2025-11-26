@@ -10,9 +10,13 @@ module Y19.IntCodeComputer
     , statusReadEmptyIn
     ) where
 
+import Data.Map (Map)
+import qualified Data.Map as M ((!?), insert, fromList)
+import Data.Maybe (fromMaybe)
 
 type Program = [Int]
-type Memory = [Int]
+--type MemoryV1old = [Int]
+type Memory = Map Int Int
 
 type Pointer = Int
 
@@ -24,7 +28,7 @@ data Value =
 
 getValue :: Memory -> Value -> Int
 getValue _ (Immediate x) = x
-getValue m (Position r) = m !! r
+getValue m (Position r) = memRead m r
 --getValue _ v = error $ "invalid value kind: " ++ show v
 
 
@@ -38,6 +42,7 @@ data Instruction =
   | OpJIF Value Value
   | OpLT  Value Value Value
   | OpEq  Value Value Value
+  | OpRBO Value
   deriving Show
 
 
@@ -61,21 +66,25 @@ data Computer = Computer {
     , memory  :: Memory
     , input   :: [Int]
     , output  :: [Int]
+    , relbase :: Pointer
 } deriving Show
 
 instance IntCodeComputer Computer where
 
+
     init :: Program -> Computer
-    init program = Computer { pointer = 0, memory = program, input = [], output = [] }
+    init program = Computer { pointer = 0, memory = loadProgram program, input = [], output = [] , relbase = 0}
 
 
     upld_inp :: Computer -> [Int] -> Computer
     upld_inp c ins = c {input = ins}
 
+
     push_in :: Computer -> Int -> Computer
     push_in c v =
         let _input = input c
         in c {input = _input ++ [v]}
+
 
     pull_out :: Computer -> (Int, Computer)
     pull_out c = case output c of
@@ -84,7 +93,7 @@ instance IntCodeComputer Computer where
 
 
     read_ins :: Computer -> Instruction
-    read_ins Computer {pointer=_p , memory=_m} =
+    read_ins Computer {pointer=_p , memory=_m, relbase=_b} =
         case opcode `mod` 100 of
             1 -> OpAdd (param_val 1 v1) (param_val 2 v2) (param_val 3 v3)
             2 -> OpMul (param_val 1 v1) (param_val 2 v2) (param_val 3 v3)
@@ -94,14 +103,16 @@ instance IntCodeComputer Computer where
             6 -> OpJIF (param_val 1 v1) (param_val 2 v2)
             7 -> OpLT  (param_val 1 v1) (param_val 2 v2) (param_val 3 v3)
             8 -> OpEq  (param_val 1 v1) (param_val 2 v2) (param_val 3 v3)
+            9 -> OpRBO (param_val 1 v1)
             99 -> OpExit
             x -> error $ "undefined opcode: " ++ show x ++ " at address " ++ show _p
         where
             (opcode, v1, v2, v3) = (memRead _m _p, memRead _m (_p+1), memRead _m (_p+2), memRead _m (_p+3))
             param_val :: Int -> Int -> Value
             param_val parnum val
-                | adrmod == 0 = Position val
-                | adrmod == 1 = Position (_p+parnum)
+                | adrmod == 0 = Position val         -- position mode
+                | adrmod == 1 = Position (_p+parnum) -- this is literal mode but we translate it to position of literal
+                | adrmod == 2 = Position (_b+val)    -- relative base mode
                 | otherwise   = error $ "unknown address mode for operation " ++ show opcode
                 where
                     adrmod = opcode `div` (10^(parnum+1)) `mod` 10
@@ -160,7 +171,12 @@ instance IntCodeComputer Computer where
             newptr = ptr + 4
         in c{pointer = newptr, memory = memWrite outval mem outref}
     exec_ins _ OpEq{} = error "not valid instruction"
-
+    exec_ins c (OpRBO in1) =
+        let (ptr, mem) = (pointer c, memory c)
+            cur    = relbase c
+            in1val = getValue mem in1
+            newptr = ptr + 2
+        in c{pointer = newptr, relbase = cur + in1val}
 
 
 statusHalt :: Computer -> Bool
@@ -173,14 +189,27 @@ statusReadEmptyIn c = case (read_ins c, input c) of
         (OpIn _, []) -> True
         _ -> False
 
+
 statusNonEmptyOut :: Computer -> Bool
 statusNonEmptyOut = not . null . output 
 
 
 memRead :: Memory -> Pointer -> Int
-memRead = (!!)
+memRead mem ptr = fromMaybe 0 $ mem M.!? ptr
+-- memRead m p
+--     | p >= length m = m !! (p `mod` length m)
+--     | p < 0 = error "Can't read from negative address"
+--     | otherwise = m !! p
+
+
+
+
 memWrite :: Int -> Memory -> Pointer -> Memory
-memWrite val mem ptr = take ptr mem ++ [val] ++ drop (ptr+1) mem
+memWrite val mem ptr = M.insert ptr val mem
+--memWrite val mem ptr = take ptr mem ++ [val] ++ drop (ptr+1) mem
+
+loadProgram :: Program -> Memory
+loadProgram program = M.fromList $ zip [0..] program
 
 parseInput :: String -> Program
 parseInput = map read . words . substitute ',' ' '
