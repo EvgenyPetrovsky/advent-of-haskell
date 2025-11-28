@@ -25,7 +25,10 @@ source-repository head
 
 library
   exposed-modules:
-      AOCutil
+      Util.AOC
+      Util.Compute
+      Util.Data
+      Util.Geometry
       Y15D01
       Y15D02
       Y15D19

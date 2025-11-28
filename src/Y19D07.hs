@@ -6,7 +6,7 @@ module Y19D07
 
 import qualified Y19.IntCodeComputer as ICC
 import Data.List (permutations)
-import AOCutil ((|>))
+import Util.Compute ((|>))
 
 type Problem = ICC.Program
 type Answer = Int

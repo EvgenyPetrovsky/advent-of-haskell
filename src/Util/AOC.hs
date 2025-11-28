@@ -1,4 +1,4 @@
-module AOCutil
+module Util.AOC
     ( (|>)
     ) where
 
