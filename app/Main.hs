@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Y19D09 (
+import Y25D01 (
     parse
   , solve1
   , solve2
