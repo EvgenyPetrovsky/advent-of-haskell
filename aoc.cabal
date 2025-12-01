@@ -4,14 +4,14 @@ cabal-version: 2.2
 --
 -- see: https://github.com/sol/hpack
 
-name:           aoc2015
+name:           aoc
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/aoc2015#readme>
-homepage:       https://github.com/githubuser/aoc2015#readme
-bug-reports:    https://github.com/githubuser/aoc2015/issues
-author:         Author name here
+description:    Please see the README on GitHub at <https://github.com/githubuser/advent-of-haskell#readme>
+homepage:       https://github.com/githubuser/advent-of-haskell#readme
+bug-reports:    https://github.com/githubuser/advent-of-haskell/issues
+author:         Evgeny Petrovskiy
 maintainer:     example@example.com
-copyright:      2025 Author name here
+copyright:      2025 Evgeny Petrovskiy
 license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Simple
@@ -21,7 +21,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/aoc2015
+  location: https://github.com/githubuser/advent-of-haskell
 
 library
   exposed-modules:
@@ -50,9 +50,9 @@ library
       Y19D09
       Y25D01
   other-modules:
-      Paths_aoc2015
+      Paths_aoc
   autogen-modules:
-      Paths_aoc2015
+      Paths_aoc
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
@@ -62,34 +62,34 @@ library
     , split >=0.2.5
   default-language: Haskell2010
 
-executable aoc2015-exe
+executable aoc-exe
   main-is: Main.hs
   other-modules:
-      Paths_aoc2015
+      Paths_aoc
   autogen-modules:
-      Paths_aoc2015
+      Paths_aoc
   hs-source-dirs:
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aoc2015
+      aoc
     , base >=4.7 && <5
     , containers
     , split >=0.2.5
   default-language: Haskell2010
 
-test-suite aoc2015-test
+test-suite aoc-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_aoc2015
+      Paths_aoc
   autogen-modules:
-      Paths_aoc2015
+      Paths_aoc
   hs-source-dirs:
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aoc2015
+      aoc
     , base >=4.7 && <5
     , containers
     , split >=0.2.5
