@@ -49,6 +49,7 @@ library
       Y19D08
       Y19D09
       Y25D01
+      Y25D02
   other-modules:
       Paths_aoc
   autogen-modules:
