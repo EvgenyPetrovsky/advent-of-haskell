@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use camelCase" #-}
-module Y19D04
+module Y19.D04
     ( parse
     , solve1
     , solve2

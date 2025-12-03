@@ -1,6 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 
-module Y19D05
+module Y19.D05
     ( parse
     , solve1
     , solve2

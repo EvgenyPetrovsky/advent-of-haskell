@@ -1,4 +1,4 @@
-module Y19D03
+module Y19.D03
     ( parse
     , solve1
     , solve2

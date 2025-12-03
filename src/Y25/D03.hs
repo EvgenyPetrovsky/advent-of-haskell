@@ -1,4 +1,4 @@
-module Y25D03
+module Y25.D03
     ( parse
     , solve1
     , solve2

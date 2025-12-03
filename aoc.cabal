@@ -29,28 +29,29 @@ library
       Util.Compute
       Util.Data
       Util.Geometry
-      Y15D01
-      Y15D02
-      Y15D19
-      Y15D20
-      Y15D21
-      Y15D22
-      Y15D23
-      Y15D24
-      Y15D25
+      Util.Graph
+      Y15.D01
+      Y15.D02
+      Y15.D19
+      Y15.D20
+      Y15.D21
+      Y15.D22
+      Y15.D23
+      Y15.D24
+      Y15.D25
+      Y19.D01
+      Y19.D02
+      Y19.D03
+      Y19.D04
+      Y19.D05
+      Y19.D06
+      Y19.D07
+      Y19.D08
+      Y19.D09
       Y19.IntCodeComputer
-      Y19D01
-      Y19D02
-      Y19D03
-      Y19D04
-      Y19D05
-      Y19D06
-      Y19D07
-      Y19D08
-      Y19D09
-      Y25D01
-      Y25D02
-      Y25D03
+      Y25.D01
+      Y25.D02
+      Y25.D03
   other-modules:
       Paths_aoc
   autogen-modules:
