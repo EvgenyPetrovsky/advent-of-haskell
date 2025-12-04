@@ -39,7 +39,8 @@ solve1 = Set.size . canRemove
 solve2 :: Problem -> Answer
 solve2 input
     | free_size == 0 = 0
-    | otherwise = free_size + solve2 (Set.difference input free)
+    | otherwise = free_size + solve2 rest
     where  
         free = canRemove input
         free_size = Set.size free
+        rest = Set.difference input free
