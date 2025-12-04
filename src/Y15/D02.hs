@@ -20,7 +20,7 @@ a |> f = f a
 parseOneLine :: String -> Dims
 parseOneLine l =
     let delimiter = "x"
-        nums =  map (\x -> (read x) :: Int) . splitOn delimiter $ l
+        nums =  map (\x -> read x :: Int) . splitOn delimiter $ l
     in fillTriple nums
     where
         fillTriple :: [Int] -> Dims
@@ -37,7 +37,7 @@ boxWrapSurface (a,b,c) =
         addon :: Int
         addon = minimum sideSurfaces
     in
-        addon + (sum . map (\x -> 2 * x) $ sideSurfaces)
+        addon + (sum . map (2 *) $ sideSurfaces)
 
 boxRibbonLength :: Dims -> Int
 boxRibbonLength (a,b,c) =
