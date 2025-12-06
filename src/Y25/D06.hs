@@ -14,14 +14,13 @@ type Answer = Int
 
 parse :: String -> Problem
 parse input_text =
-    Problem (zip ops vals1) (zip ops vals2)
+    Problem { part1 = zip ops vals1, part2 = zip ops vals2 }
     where
         input_lines = lines input_text
         op_line = last input_lines
         val_lines = take (length input_lines - 1) input_lines
         ops = map op_parser . filter (/= "") . words $ op_line
         vals1 = map (map (\x -> read x :: Val)) . transpose . map (filter (/= "") . words) $ val_lines
-        --vals2 = map (map (\x -> read x :: Val) . transpose) . transpose . map (filter (/= "") . words) $ val_lines
         vals2 = map (map read) . splitWhen (all (== ' ')) . transpose $ val_lines
         op_parser :: String -> Op
         op_parser "+" = (+)
@@ -34,6 +33,4 @@ solve1 = sum . map (uncurry foldl1) . part1
 
 
 solve2 :: Problem -> Answer
-solve2 =
-    --error $ show . map snd $ part2 input
-    sum . map (uncurry foldl1) . part2
+solve2 = sum . map (uncurry foldl1) . part2
