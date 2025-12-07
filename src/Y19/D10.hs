@@ -6,11 +6,13 @@ module Y19.D10
 
 
 import Util.AOC ((.-.), (|>))
-import Data.List (nub)
-
+import Data.List (nub, sortBy)
+import Data.Map (Map)
+import qualified Data.Map as Map
 
 type Position = (Int, Int)
 type Disposition = (Int, Int)
+type Angle = Double
 type Problem = [Position]
 type Answer = Int
 
@@ -48,4 +50,34 @@ solve1 input =
 
 
 solve2 :: Problem -> Answer
-solve2 = undefined
+solve2 input =
+    let (a,b) = go 200 0 mpsort
+    in a * 100 + b
+    where
+        bp = bestPosition
+        other = filter (/= bp) input
+        dirs = map (direction . disposition bp) other
+        angles = map (\(a,b) -> atan2 (fromIntegral a :: Angle) (fromIntegral b :: Angle)) dirs
+        mp :: Map Angle [Position]
+        mp = foldl (\z (k, a) -> Map.insertWith (++) k [a] z) Map.empty $ zip angles other
+        mpsort = Map.map (sortBy (\(a1, b1) (a2, b2) -> compare (a1*a1+b1*b1) (a2*a2+b2*b2))) mp
+        next_angle :: Angle -> [Angle] -> Angle
+        next_angle _a _as
+            | _a == maximum _as = minimum _as
+            | otherwise = minimum [a | a <- _as, a > _a]
+        go :: Int -> Angle -> Map Angle [Position] -> Position
+        go n angle m
+            | angle `notElem` Map.keys m = go n next m
+            | n == 0 = head $ m Map.! angle
+            | otherwise = go (n-1) next newm
+            where
+                next = next_angle angle (Map.keys m)
+                newp = tail $ m Map.! angle
+                newm :: Map Angle [Position]
+                newm = case newp of
+                    [] -> Map.delete angle m
+                    ps -> Map.update (\_ -> Just ps) angle m
+
+bestPosition :: Position
+bestPosition = undefined
+
