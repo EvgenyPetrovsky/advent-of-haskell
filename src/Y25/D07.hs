@@ -18,7 +18,14 @@ data QBeam =
       QBeam Position Timeline
     | QFork QBeam QBeam
 
-
+{-
+Returns
+    Start position of Beam (first line)
+    List of Lists of positions of Splitters
+        outer list preservs lines of file (top down)
+        inner list contains splitters in the line
+            where position is offset from the beginning of the line
+-}
 parse :: String -> Problem
 parse text_input =
     (
@@ -48,10 +55,21 @@ solve1 (start, splitters_array) =
                 new_cnt = cnt + sum (map (\b -> length b - 1) new_bms)
             in (new_cnt, nub $ concat new_bms)
 
+
+{-
+Quantum split
+    split positions, inherit timenlines
+-}
 qsplit :: QBeam -> QBeam
 qsplit (QBeam p t) = QFork (QBeam (p-1) t) (QBeam (p+1) t)
 qsplit (QFork {}) = error "only QBeam can be split"
 
+
+{-
+Quantum merge
+    increases counts of timelines
+    while combining two beams with same position
+-}
 qmerge :: [QBeam] -> [QBeam]
 qmerge [] = []
 qmerge qbms =
@@ -63,6 +81,15 @@ qmerge qbms =
             Map.insertWith (+) pos1 tml1 . Map.insertWith (+) pos2 tml2 $ m
         mrg _ (QFork {}) = error "only QFork of QBeam can be split"
 
+
+{-
+Quantum pass
+Step 1
+    If splitter on the way - perform quantum split
+    If no splitter, let it propagate
+Step 2
+    Merge all splitted beams and sum there timelines
+-}
 qpass :: QBeam -> [Splitter] -> QBeam
 qpass qb@(QBeam pos _) ss
     | pos `elem` ss = qsplit qb
