@@ -6,11 +6,13 @@ module Y25.D06
 import Data.List (transpose)
 import Data.List.Split (splitWhen)
 
+
 type Op = Int -> Int -> Int
 type Val = Int
 type Task = (Op, [Val])
 data Problem = Problem { part1 :: [Task], part2 :: [Task] }
 type Answer = Int
+
 
 parse :: String -> Problem
 parse input_text =
