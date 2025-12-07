@@ -48,6 +48,7 @@ library
       Y19.D07
       Y19.D08
       Y19.D09
+      Y19.D10
       Y19.IntCodeComputer
       Y25.D01
       Y25.D02
@@ -55,6 +56,7 @@ library
       Y25.D04
       Y25.D05
       Y25.D06
+      Y25.D07
   other-modules:
       Paths_aoc
   autogen-modules:
