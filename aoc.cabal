@@ -59,6 +59,9 @@ library
       Y25.D07
       Y25.D08
       Y25.D09
+      Y25.D10
+      Y25.D11
+      Y25.D12
   other-modules:
       Paths_aoc
   autogen-modules:
