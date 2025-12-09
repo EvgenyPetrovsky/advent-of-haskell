@@ -54,7 +54,7 @@ solve2 input =
     let (a,b) = go 200 0 mpsort
     in a * 100 + b
     where
-        bp = bestPosition
+        bp = bestPosition input
         other = filter (/= bp) input
         dirs = map (direction . disposition bp) other
         angles = map (\(a,b) -> atan2 (fromIntegral a :: Angle) (fromIntegral b :: Angle)) dirs
@@ -78,6 +78,10 @@ solve2 input =
                     [] -> Map.delete angle m
                     ps -> Map.update (\_ -> Just ps) angle m
 
-bestPosition :: Position
-bestPosition = undefined
+bestPosition :: Problem -> Position
+bestPosition input = 
+    let pos_cnt = map (\x -> (x, length . nub . map (direction . disposition x) $ input)) input
+        max_cnt = maximum . map snd $ pos_cnt
+        bestpos = fst . head . filter (\(_,cnt) -> cnt == max_cnt) $ pos_cnt
+    in bestpos
 
