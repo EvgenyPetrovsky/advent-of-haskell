@@ -38,8 +38,6 @@ direction (dr, dc)
     where x = gcd (abs dr) (abs dc)
 
 
-
-
 solve1 :: Problem -> Answer
 solve1 input =
     input
@@ -77,6 +75,7 @@ solve2 input =
                 newm = case newp of
                     [] -> Map.delete angle m
                     ps -> Map.update (\_ -> Just ps) angle m
+
 
 bestPosition :: Problem -> Position
 bestPosition input = 
