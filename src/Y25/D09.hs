@@ -38,19 +38,19 @@ solve1 input =
     e.g. (5, 1) & (1, 5) -> (1,1) & (5,5)
 
 -}
-canonic :: (Position, Position) -> (Tile, Tile)
-canonic ((x1,y1), (x2,y2)) = ((min x1 x2, min y1 y2), (max x1 x2, max y1 y2))
+tlbr :: (Position, Position) -> (Tile, Tile)
+tlbr ((x1,y1), (x2,y2)) = ((min x1 x2, min y1 y2), (max x1 x2, max y1 y2))
 
 
 {-
-    transofrm list of coordintates into segments of polygon so that
+    transform list of coordintates into segments of polygon so that
     - start of segment located at top left
     - end of segment located at bottom right    
 -}
 segments :: [Tile] -> [(Position, Position)]
 segments ts =
     let te = tail ts ++ [head ts]
-    in zipWith (curry canonic) ts te
+    in zipWith (curry tlbr) ts te
 
 
 {-
@@ -58,10 +58,11 @@ segments ts =
 -}
 check :: Vector -> [Vector] -> Bool
 check rect segms =
-    let ((xl, yt), (xr, yb)) = canonic rect
+    let ((xl, yt), (xr, yb)) = tlbr rect
     {- 
         two checks: 
         - rectangle sides do not cross the segments
+        - rectangle top left corner is inside 
     -}
         -- vertical line crossing top or vertical line crossing bottom or both or in the middle
         v_cross = any (\((x1, y1), (x2, y2)) -> x1 == x2 && xl < x1 && x1 < xr && y1 < yb && y2 > yt) segms
