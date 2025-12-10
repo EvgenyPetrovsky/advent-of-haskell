@@ -3,38 +3,35 @@ module Y25.D10
     , solve1
     , solve2
     ) where
+
 import Data.List.Split (splitOn)
-import qualified Data.Set as Set
-import Data.Set (Set, delete)
+import Data.List (sortBy)
 
-data Toggle = On | Off deriving Eq
-instance Show Toggle where
-    show On = "#"
-    show Off = "."
 
-type Target = [Toggle]
-type Position = Int
-type Button = [Position]
-type Joltage = [Int]
+type Toggle = Int
 
-type Problem = [(Target, [Button], Joltage)]
+type ToggleArray  = [Toggle]
+type ButtonWires  = [Toggle]
+type JoltageCount = [Int]
+
+type Problem = [(ToggleArray, [ButtonWires], JoltageCount)]
 type Answer = Int
 
 
 {- [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7} -}
-parseline :: String -> ([Toggle], [Button], Joltage)
+parseline :: String -> (ToggleArray, [ButtonWires], JoltageCount)
 parseline line =
-    let pieces = words line
-        tgt = head pieces
-        bts = tail . init $ pieces
-        jlt = last pieces
-    in (parse_tgt tgt, map parse_bts bts, parse_jlt jlt)
+    ( tgt, bws, jlt)
     where
+        pieces = words line
+        tgt = parse_tgt $ head pieces
+        bws = map parse_bts . tail . init $ pieces
+        jlt = parse_jlt $ last pieces
         parse_tgt :: String -> [Toggle]
-        parse_tgt = map (\c -> if c == '#' then On :: Toggle else Off :: Toggle) . tail . init
-        parse_bts :: String -> [Position]
-        parse_bts = map (\p -> read p :: Int) . splitOn "," . tail . init
-        parse_jlt :: String -> Joltage
+        parse_tgt = map (\c -> if c == '#' then 1 else 0) . tail . init
+        parse_bts :: String -> ButtonWires
+        parse_bts = (`wireButton` tgt) . map (\p -> read p :: Int) . splitOn "," . tail . init
+        parse_jlt :: String -> JoltageCount
         parse_jlt = map (\p -> read p :: Int) . splitOn "," . tail . init
 
 
@@ -42,62 +39,67 @@ parse :: String -> Problem
 parse = map parseline . lines
 
 
-toggle :: Toggle -> Toggle
-toggle On = Off
-toggle Off = On
+updateToggles :: ButtonWires -> ToggleArray -> ToggleArray
+updateToggles = zipWith (\x y -> (x+y) `mod` 2)
 
 
-updateToggles :: Button -> [Toggle] -> [Toggle]
-updateToggles =
-    go 0
+updateJoltage :: ButtonWires -> JoltageCount -> JoltageCount
+updateJoltage = zipWith (+)
+
+
+wireButton :: [Int] -> ToggleArray -> ToggleArray
+wireButton idxs = zipWith (\i _ -> if i `elem` idxs then 1 else 0) [0..]
+
+
+solve1line :: (ToggleArray, [ButtonWires], JoltageCount) -> Int
+solve1line (target_state, buttons, _) =
+    go 0 worst (map (const 0) target_state) buttons
     where
-        go :: Int -> Button -> [Toggle] -> [Toggle]
-        go _ [] tgs = tgs
-        go _ _ [] = []
-        go idx (b:bs) (t:ts)
-            | idx == b = toggle t : go (idx + 1) bs ts
-            | otherwise = t : go (idx + 1) (b:bs) ts
-
-
-solve1line :: ([Toggle], [Button], Joltage) -> Int
-solve1line (target_state, buttons, _) = go 0 999 (map (const Off) target_state) bts_set
-    where
-        bts_set = Set.fromList buttons
-        go :: Int -> Int -> [Toggle] -> Set Button -> Int
+        worst = 999
+        go :: Int -> Int -> [Toggle] -> [ButtonWires] -> Int
         go acc best tgs bts
-            | tgs == target_state = acc
-            | acc > best = 999
-            | null bts   = 999
-            | otherwise  = foldl (\z x -> min best $ go (acc+1) z (updateToggles x tgs) (x `delete` bts)) best bts
+            | acc > best = best
+            | tgs == target_state =acc
+            | null bts   = best
+            | otherwise  = 
+                go (acc+1) best (updateToggles (head bts) tgs) (tail bts)
+                `min`
+                go acc best tgs (tail bts)
 
 
 solve1 :: Problem -> Answer
-solve1 = sum . map solve1line 
+solve1 = sum . map solve1line
 
 
-updateJoltage :: Button -> Joltage -> Joltage
-updateJoltage =
-    go 0
+solve2line :: (ToggleArray, [ButtonWires], JoltageCount) -> Int
+solve2line (target_state, buttons, target_joltage) =
+    let init_state = map (const 0) target_state
+        in_buttons = sortBy (flip compare) buttons
+        worst_best = sum target_joltage
+    in go 0 worst_best init_state in_buttons init_state
     where
-        go :: Int -> Button -> Joltage -> Joltage
-        go _ [] jlt = jlt
-        go _ _ [] = []
-        go idx (b:bs) (j:js)
-            | idx == b = (j+1) : go (idx + 1) bs js
-            | otherwise = j : go (idx + 1) (b:bs) js
-
-
-solve2line :: ([Toggle], [Button], Joltage) -> Int
-solve2line (target_state, buttons, target_joltage) = 
-    go 0 (sum target_joltage) (map (const Off) target_state) (map (const 0) target_joltage)
-    where
-        go :: Int -> Int -> [Toggle] -> Joltage -> Int
-        go acc best tgs jlt 
+        go :: Int -> Int -> ToggleArray -> [ButtonWires] -> JoltageCount -> Int
+        go acc best tgs bts jlt
             | acc > best = best
-            | or $ zipWith (>) jlt target_joltage = best
-            | tgs == target_state && jlt == target_joltage = acc
-            | otherwise = foldl (\z x -> go (acc+1) z (updateToggles x tgs) (updateJoltage x jlt)) best buttons
+            | {- tgs == target_state && -} jlt == target_joltage = acc
+            | null bts = best
+            | deadend1 btn_head jlt = best
+            | deadend2 jlt = best
+            | otherwise =
+                go (acc+1) best (updateToggles btn_head tgs) bts (updateJoltage btn_head jlt)
+                `min`
+                go (acc+0) best tgs btn_tail jlt
+            where
+                btn_head = head bts
+                btn_tail = tail bts
+        deadend1 :: ButtonWires -> JoltageCount -> Bool
+        deadend1 bws jlt =
+            let zeros = length $ takeWhile (== 0) bws
+            in or . take zeros $ zipWith (<) jlt target_joltage
+        deadend2 :: JoltageCount -> Bool
+        deadend2 jlt = 
+            or $ zipWith (>) jlt target_joltage
 
 
 solve2 :: Problem -> Answer
-solve2 = sum . map solve2line 
+solve2 = sum . map solve2line
