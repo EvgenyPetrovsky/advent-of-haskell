@@ -5,11 +5,13 @@ module Y25.D10
     ) where
 
 import Data.List.Split (splitOn)
-import Data.List (sortBy)
+import Data.List (sortBy, nub)
+import Data.Map (Map, insert, empty, (!?))
 
 
 type Toggle = Int
 
+type Cache_Part2 = Map [Int] Int
 type ToggleArray  = [Toggle]
 type ButtonWires  = [Toggle]
 type JoltageCount = [Int]
@@ -72,33 +74,70 @@ solve1 = sum . map solve1line
 
 
 solve2line :: (ToggleArray, [ButtonWires], JoltageCount) -> Int
-solve2line (target_state, buttons, target_joltage) =
-    let init_state = map (const 0) target_state
+solve2line (_, buttons, target_joltage) =
+    let init_state = map negate target_joltage
         in_buttons = sortBy (flip compare) buttons
-        worst_best = sum target_joltage
-    in go 0 worst_best init_state in_buttons init_state
+        worst_best = maximum target_joltage
+    in fst $ go (0, [0], empty :: Cache_Part2) worst_best in_buttons init_state
     where
-        go :: Int -> Int -> ToggleArray -> [ButtonWires] -> JoltageCount -> Int
-        go acc best tgs bts jlt
-            | acc > best = best
-            | {- tgs == target_state && -} jlt == target_joltage = acc
-            | null bts = best
-            | deadend1 btn_head jlt = best
-            | deadend2 jlt = best
+        go :: (Int, [Int], Cache_Part2) -> Int -> [ButtonWires] -> JoltageCount -> (Int, Cache_Part2)
+        go (acc, lkp_key, cache) best bts jlt
+            | acc > best = (best, cache)
+            | all (==0) jlt = (acc, cache)
+            | null bts = (best, cache)
+            | deadend1 btn_head jlt = (best, cache)
+            | deadend2 jlt = (best, cache)
             | otherwise =
-                go (acc+1) best (updateToggles btn_head tgs) bts (updateJoltage btn_head jlt)
-                `min`
-                go (acc+0) best tgs btn_tail jlt
+                let upd_joltage = updateJoltage btn_head jlt
+                    lkp_key1 = (head lkp_key + 1) : tail lkp_key
+                    (opt1, upd_cache_1) = 
+                        case cache !? lkp_key1 of
+                            Just res -> (res, cache)
+                            Nothing  -> go (acc+1, lkp_key1, cache) best bts upd_joltage
+                    lkp_key2 = 0:lkp_key
+                    (opt2, upd_cache_2) = 
+                        case upd_cache_1 !? lkp_key2 of
+                            Just res -> (res, upd_cache_1)
+                            Nothing  -> go (acc+0, lkp_key2, upd_cache_1) best btn_tail jlt
+                    opt = min opt1 opt2
+                    upd_cache = insert lkp_key opt upd_cache_2
+                in (opt, upd_cache)
             where
                 btn_head = head bts
                 btn_tail = tail bts
         deadend1 :: ButtonWires -> JoltageCount -> Bool
         deadend1 bws jlt =
             let zeros = length $ takeWhile (== 0) bws
-            in or . take zeros $ zipWith (<) jlt target_joltage
+            in any (<0) $ take zeros jlt
         deadend2 :: JoltageCount -> Bool
-        deadend2 jlt = 
-            or $ zipWith (>) jlt target_joltage
+        deadend2 = any (> 0)
+
+
+
+presolve2line :: (ToggleArray, [ButtonWires], JoltageCount) -> Int
+presolve2line (_, buttons, target_joltage) =
+    {-
+    error $ 
+        "left side solution: " ++ show lt_sol ++ 
+        ", org target = " ++ show target_joltage ++
+        ", reduced target = " ++ show lt_joltage ++
+        ", reduced button wires = " ++ show lt_buttons
+    -- | lt_sol /= rt_sol = error $ "can't find solution for target joltage " ++ show target_joltage
+    -- | otherwise = lt_sol
+    -}
+    lt_sol
+    where 
+        maxlen = 7
+        lt_buttons = nub . filter (any (>0)) . map (take maxlen ) $ buttons 
+        lt_joltage = take maxlen target_joltage
+        lt_sol = solve2line ([], lt_buttons, lt_joltage)
+        {-
+        len = length target_joltage
+        rt_droplen = max 0 $ len - maxlen
+        rt_buttons = nub . filter (any (>0)) . map (drop rt_droplen) $ buttons 
+        rt_joltage = drop rt_droplen target_joltage
+        rt_sol = solve2line ([], rt_buttons, rt_joltage)
+        -}
 
 
 solve2 :: Problem -> Answer
