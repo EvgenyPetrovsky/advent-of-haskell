@@ -77,34 +77,35 @@ solve2line :: (ToggleArray, [ButtonWires], JoltageCount) -> Int
 solve2line (_, buttons, target_joltage) =
     let init_state = map negate target_joltage
         in_buttons = sortBy (flip compare) buttons
-        worst_best = maximum target_joltage
+        worst_best = 3 * maximum target_joltage
     in fst $ go (0, [0], empty :: Cache_Part2) worst_best in_buttons init_state
     where
         go :: (Int, [Int], Cache_Part2) -> Int -> [ButtonWires] -> JoltageCount -> (Int, Cache_Part2)
         go (acc, lkp_key, cache) best bts jlt
-            | acc > best = (best, cache)
-            | all (==0) jlt = (acc, cache)
-            | null bts = (best, cache)
-            | deadend1 btn_head jlt = (best, cache)
-            | deadend2 jlt = (best, cache)
+            | acc > best = (best, cache_bst)
+            | all (==0) jlt = (acc, cache_acc)
+            | null bts = (best, cache_bst)
+            | deadend1 btn_head jlt = (best, cache_bst)
+            | deadend2 jlt = (best, cache_bst)
             | otherwise =
                 let upd_joltage = updateJoltage btn_head jlt
-                    lkp_key1 = (head lkp_key + 1) : tail lkp_key
-                    (opt1, upd_cache_1) = 
-                        case cache !? lkp_key1 of
-                            Just res -> (res, cache)
-                            Nothing  -> go (acc+1, lkp_key1, cache) best bts upd_joltage
-                    lkp_key2 = 0:lkp_key
-                    (opt2, upd_cache_2) = 
-                        case upd_cache_1 !? lkp_key2 of
+                    lkp_key_next = 0:lkp_key
+                    (opt_next, upd_cache_next) = 
+                        case cache !? lkp_key_next of
                             Just res -> (res, upd_cache_1)
-                            Nothing  -> go (acc+0, lkp_key2, upd_cache_1) best btn_tail jlt
-                    opt = min opt1 opt2
-                    upd_cache = insert lkp_key opt upd_cache_2
-                in (opt, upd_cache)
+                            Nothing  -> go (acc+0, lkp_key_next, cache) best btn_tail jlt
+                    lkp_key_more = (head lkp_key + 1) : tail lkp_key
+                    (opt_more, upd_cache_more) = 
+                        case upd_cache_next !? lkp_key_more of
+                            Just res -> (res, cache)
+                            Nothing  -> go (acc+1, lkp_key_more, cache) best bts upd_joltage
+                    upd_cache = insert lkp_key opt_next upd_cache_next -- $ . insert lkp_key_next opt2 . insert lkp_key1 opt1 $ upd_cache_2
+                in (best `min` opt_next `min` opt_more, upd_cache)
             where
                 btn_head = head bts
                 btn_tail = tail bts
+                cache_bst = insert lkp_key best cache
+                cache_acc = insert lkp_key acc cache
         deadend1 :: ButtonWires -> JoltageCount -> Bool
         deadend1 bws jlt =
             let zeros = length $ takeWhile (== 0) bws
