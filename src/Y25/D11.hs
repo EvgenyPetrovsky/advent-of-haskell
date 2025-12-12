@@ -51,10 +51,8 @@ walks from goal connections =
             | Map.member node visited = visited        -- if this node was reached before - change nothing            
             | node == goal = Map.insert node 1 visited -- if goal is reached - put 1 score
             | null nodes = Map.insert node 0 visited   -- if none of nodes can be reached - put 0 score
-            -- otherwise visit firther nodes and sum all of their scores
-            | otherwise = foldl (\v n ->
-                let new_v = go v n
-                    score = new_v Map.! n
+            | otherwise = foldl (\v n ->               -- otherwise visit firther nodes and sum all of their scores
+                let (new_v, score) = (go v n, new_v Map.! n) 
                 in Map.insertWith (+) node score new_v
                 ) visited nodes
             where
