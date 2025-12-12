@@ -9,12 +9,8 @@ module Y25.D11
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
-import Data.Set (Set, member)
-import qualified Data.Set as Set
-import qualified Data.IntMap.Merge.Strict as Map (merge)
 
 type Node = String
-
 type Problem = Map Node [Node]
 type Answer = Int
 
@@ -33,54 +29,33 @@ parse =
 
 
 solve1 :: Problem -> Answer
-solve1 input =
-    go Map.empty from Map.! from
-    where
-        from = "svr"
-        goal = "out"
-        go :: Map Node Int -> Node -> Map Node Int
-        go visited node
-            | node == goal = Map.insert node 1 Map.empty
-            | Map.member node visited = Map.update (\a -> if a == 0 then Nothing else Just (a + 1)) node visited
-            | null nodes = Map.insert node 0 visited
-            | otherwise = foldl (\v n ->
-                let new_v = go v n
-                in Map.insertWith (+) node (new_v Map.! n) new_v
-                ) visited nodes
-            where
-                nodes = fromMaybe [] $ input Map.!? node
+solve1 = walks "you" "out"
 
 
 solve2 :: Problem -> Answer
 solve2 input =
-    go Set.empty from
+    (product . zipWith (\a b -> walks a b input) route1 $ tail route1)
+    +
+    (product . zipWith (\a b -> walks a b input) route2 $ tail route2)
     where
+        route1 = ["svr", "fft", "dac", "out"]
+        route2 = ["svr", "dac", "fft", "out"]
 
-        from = "svr"
-        goal = "out"
-        go :: Set Node -> Node -> Int
+
+walks :: Node -> Node -> Problem -> Int
+walks from goal connections =
+    go Map.empty from Map.! from
+    where
+        go :: Map Node Int -> Node -> Map Node Int
         go visited node
-            | node == goal =
-                if "dac" `member` visited && "fft" `member` visited then 1 else 0
-            | node `member` visited = error "loop"
-            | otherwise = sum . map (go (node `Set.insert` visited)) $ nodes
+            | Map.member node visited = visited        -- if this node was reached before - change nothing            
+            | node == goal = Map.insert node 1 visited -- if goal is reached - put 1 score
+            | null nodes = Map.insert node 0 visited   -- if none of nodes can be reached - put 0 score
+            -- otherwise visit firther nodes and sum all of their scores
+            | otherwise = foldl (\v n ->
+                let new_v = go v n
+                    score = new_v Map.! n
+                in Map.insertWith (+) node score new_v
+                ) visited nodes
             where
-                nodes = fromMaybe [] $ input Map.!? node
-
-
-{-
-solve1wrong :: Problem -> Answer
-solve1wrong input =
-    go (0, Map.empty) from Map.! from
-    where
-        from = "you"
-        goal = "out"
-        go :: (Int, Map Node Int) -> Node -> (Int, Map Node Int)
-        go acc visited node
-            | node == goal = Map.insertWith (+) node acc visited
-            | otherwise =
-                let upd_visit = Map.insertWith (+) node acc visited
-                    upd_acc = upd_visit Map.! node
-                in foldl (go upd_acc) upd_visit $ fromMaybe [] (input Map.!? node)
--}
-
+                nodes = fromMaybe [] $ connections Map.!? node
