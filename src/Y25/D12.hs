@@ -32,7 +32,6 @@ parse text_input =
 
 solve1 :: Problem -> Answer
 solve1 Problem {shapes = _, regions = _regions} =
-    --error $ show _regions
     length $ filter check _regions
     where
         check :: Region -> Bool
