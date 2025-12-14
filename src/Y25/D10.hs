@@ -94,7 +94,10 @@ solve2line (_dummy_toggles, buttons, target_joltage)
     where
         infeasible_solution = 1000000
         odd_toggles   = map (`mod` 2) target_joltage
-        all_solutions = allToggleSolutions odd_toggles buttons
+        all_solutions =
+            if all even target_joltage
+            then [] : allToggleSolutions odd_toggles buttons
+            else allToggleSolutions odd_toggles buttons
         rem_joltages  = map (foldl (zipWith (-)) target_joltage) all_solutions
         hlf_joltages  = map (map (`div` 2)) rem_joltages
 
