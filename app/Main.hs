@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Y25.D10 (
+import Y25.D12 (
     parse
   , solve1
   , solve2
