@@ -5,6 +5,7 @@ module Y25.D10
     ) where
 
 import Data.List.Split (splitOn)
+import Util.AOC ((|>))
 
 
 type Toggle = Int
@@ -66,20 +67,6 @@ solve1 :: Problem -> Answer
 solve1 = sum . map solve1line
 
 
-allToggleSolutions :: ToggleArray -> [ButtonWires] -> [[ButtonWires]]
-allToggleSolutions target_state =
-    go [] (map (const 0) target_state)
-    where
-        go :: [ButtonWires] -> ToggleArray -> [ButtonWires] -> [[ButtonWires]]
-        go acc tgs bts
-            | tgs == target_state = [acc]
-            | null bts = []
-            | otherwise =
-                let opt1 = go (acc ++ [head bts]) (updateToggles (head bts) tgs) (tail bts)
-                    opt2 = go acc tgs (tail bts)
-                in opt1 ++ opt2
-
-
 solve2line :: (ToggleArray, [ButtonWires], JoltageCount) -> Int
 solve2line (_dummy_toggles, buttons, target_joltage)
     | all (== 0) target_joltage = 0
@@ -87,23 +74,33 @@ solve2line (_dummy_toggles, buttons, target_joltage)
     | null all_solutions = infeasible_solution
     | otherwise =
         minimum $
-        zipWith (\solution hlf_joltage ->
-            length solution +
-            2 * solve2line (_dummy_toggles, buttons, hlf_joltage)
+        zipWith (\(_, btn_presses) half_joltage ->
+            btn_presses +
+            2 * solve2line (_dummy_toggles, buttons, half_joltage)
         ) all_solutions hlf_joltages
     where
         infeasible_solution = 1000000
-        odd_toggles   = map (`mod` 2) target_joltage
-        all_solutions =
-            if all even target_joltage
-            then [] : allToggleSolutions odd_toggles buttons
-            else allToggleSolutions odd_toggles buttons
-        rem_joltages  = map (foldl (zipWith (-)) target_joltage) all_solutions
-        hlf_joltages  = map (map (`div` 2)) rem_joltages
+        all_solutions = solutions buttons target_joltage
+        hlf_joltages = map fst all_solutions
+            |> map (zipWith (-) target_joltage)
+            |> map (map (`div` 2))
 
 
-{- Implement new solution based on Linear Algebra's LU decomposition -}
+solutions :: [ButtonWires] -> JoltageCount -> [(JoltageCount, Int)]
+solutions buttons joltage =
+    combinations buttons
+    |> map (\combo -> (foldl (zipWith (+)) zero combo, length combo))
+    |> filter (\(opt, _) -> and $ zipWith (\o j -> odd o == odd j && o <= j) opt joltage)
+    where 
+        zero = map (const 0) joltage :: JoltageCount
+
+
+
+combinations :: [a] -> [[a]]
+combinations [] = [[]]
+combinations (x:xs) =
+    map ([x] ++) (combinations xs) ++ combinations xs
 
 
 solve2 :: Problem -> Answer
-solve2 = error . show . map solve2line
+solve2 = sum . map solve2line
