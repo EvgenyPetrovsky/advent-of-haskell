@@ -102,5 +102,8 @@ solve2line (_dummy_toggles, buttons, target_joltage)
         hlf_joltages  = map (map (`div` 2)) rem_joltages
 
 
+{- Implement new solution based on Linear Algebra's LU decomposition -}
+
+
 solve2 :: Problem -> Answer
-solve2 = sum . map solve2line
+solve2 = error . show . map solve2line
