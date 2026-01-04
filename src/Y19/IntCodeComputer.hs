@@ -21,15 +21,12 @@ type Memory = Map Int Int
 type Pointer = Int
 
 
-data Value =
-      Position Pointer
-    | Immediate Int
-    deriving Show
+data Value = Position Pointer | Immediate Int deriving Show
+
 
 getValue :: Memory -> Value -> Int
 getValue _ (Immediate x) = x
 getValue m (Position r) = memRead m r
---getValue _ v = error $ "invalid value kind: " ++ show v
 
 
 data Instruction =
@@ -191,7 +188,7 @@ statusReadEmptyIn c = case (read_ins c, input c) of
 
 
 statusNonEmptyOut :: Computer -> Bool
-statusNonEmptyOut = not . null . output 
+statusNonEmptyOut = not . null . output
 
 
 memRead :: Memory -> Pointer -> Int

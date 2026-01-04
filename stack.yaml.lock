@@ -11,4 +11,11 @@ packages:
       size: 443
   original:
     hackage: split-0.2.5
+- completed:
+    hackage: hspec-2.11.16@sha256:e7c8a9d8263791d26821c11263d3d6085b34f4353748883a67f96fef5e785375,1895
+    pantry-tree:
+      sha256: 13b9a787e0a0fe6441f19e45d45418b039c8ad4f0b3425cfeb000291c1d4de9d
+      size: 585
+  original:
+    hackage: hspec-2.11.16
 snapshots: []
